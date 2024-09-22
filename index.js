@@ -19,23 +19,32 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: true }
+  //cookie: { secure: true } //This should only be true for HTTPS
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 const db = new pg.Client({
-  user: "postgres",
-  host: "localhost",
-  database: "secrets",
+  user:process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database:process.env.PG_DB ,
   password: process.env.DB_PASSWD,
-  port: 5432,
+  port: process.env.PORT,
 });
 db.connect();
 
 app.get("/", (req, res) => {
   res.render("home.ejs");
+});
+
+
+app.get("/login", (req, res) => {
+  res.render("login.ejs");
+});
+
+app.get("/register", (req, res) => {
+  res.render("register.ejs");
 });
 
 app.get("/secrets", (req, res)=>{
@@ -45,14 +54,6 @@ app.get("/secrets", (req, res)=>{
   }else{
     res.redirect("/login");
   }
-});
-
-app.get("/login", (req, res) => {
-  res.render("login.ejs");
-});
-
-app.get("/register", (req, res) => {
-  res.render("register.ejs");
 });
 
 app.post("/register", async (req, res) => {
@@ -91,8 +92,9 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login",
-  passport.authenticate("local",{
+app.post(
+  "/login",
+  passport.authenticate("local", {
     successRedirect: "/secrets",
     failureRedirect: "/login",
   })
