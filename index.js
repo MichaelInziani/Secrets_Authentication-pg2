@@ -10,6 +10,7 @@ import env from "dotenv";
 const app = express();
 const port = 3000;
 const saltRounds = 10;
+env.config();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -28,7 +29,7 @@ const db = new pg.Client({
   user: "postgres",
   host: "localhost",
   database: "secrets",
-  password: "HyperText1205Lang!&",
+  password: process.env.DB_PASSWD,
   port: 5432,
 });
 db.connect();
